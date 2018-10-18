@@ -13,8 +13,7 @@ import GoogleMobileAds
 import HGCircularSlider
 
 
-
-class MainViewController: UIViewController, GADBannerViewDelegate, ResponseTableConnection,TableProtocol,UISearchBarDelegate,UISearchDisplayDelegate {
+class MainViewController: UIViewController, GADBannerViewDelegate, ResponseTableConnection,TableProtocol,UISearchBarDelegate,UISearchDisplayDelegate,AdmobProtocol {
     
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var recentTextField: UITextField!
@@ -45,7 +44,6 @@ class MainViewController: UIViewController, GADBannerViewDelegate, ResponseTable
         Actual heigth of the button stack
      */
     var currentHeigthButtonStack:Double = 0
-    
     
     /*
         The gradient of the window is needed locally to be updated
@@ -327,6 +325,9 @@ class MainViewController: UIViewController, GADBannerViewDelegate, ResponseTable
         self.themesTurn = true //Activate this flag
     }
     
+    func interstitialWillDismissScreen() {
+    }
+    
     /*
         Control the sections
     */
@@ -341,13 +342,36 @@ class MainViewController: UIViewController, GADBannerViewDelegate, ResponseTable
          This class is to control the cell radio touch events to show or hide mini player
          */
         class OnCellTouch_: OnCellTouch {
-            
+        
             private var miniPlayer_:MiniPlayerView! = nil
             private var viewController:UIViewController! = nil
             
             private var currentModelIndex:Int! = nil
             
+            static let sharedInstance = OnCellTouch_()
+            
+            private var counterAdd:Int = 0
+            
+            private init() { }
+            
+            
+
+            
             func onCellTouch(radioModel: RadioModel,currentModelIndex:Int,listRadios:[RadioModel]) {
+                
+                counterAdd = counterAdd + 1
+                
+                if(self.counterAdd==3){
+                    counterAdd = 0
+                    
+                    /*
+                     Show the interseptial of the window
+                     */
+                    currentVc = viewController
+                    admobDelegate.currentVc = currentVc
+                    admobDelegate.admobProtocol = viewController as! AdmobProtocol
+                    admobDelegate.showAd()
+                }
                 
                 /*
                  Show the mini player
@@ -395,7 +419,7 @@ class MainViewController: UIViewController, GADBannerViewDelegate, ResponseTable
                 self.currentModelIndex = currentModelIndex
             }
         }
-        let onCellTouch:OnCellTouch_ = OnCellTouch_()
+        let onCellTouch:OnCellTouch_ = OnCellTouch_.sharedInstance
         onCellTouch.setMiniPlayer(miniPlayer_: miniplayer)
         onCellTouch.setViewController(viewController: self)
         

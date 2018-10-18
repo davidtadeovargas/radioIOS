@@ -15,7 +15,6 @@ var admobDelegate = AdMobDelegate()
 //Declare a global variable currentVc to hold reference to current view controller
 var currentVc: UIViewController!
 
-
 class SplashViewController: UIViewController,AdmobProtocol {
     
     @IBOutlet weak var icon: UIImageView!
