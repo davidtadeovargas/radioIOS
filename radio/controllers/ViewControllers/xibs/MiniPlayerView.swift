@@ -408,7 +408,8 @@ class MiniPlayerView: UIView {
          */
         playing = true
         
-        player.play()
+        // everything in here will execute on the main thread
+        self.player.play()
         
         /*
             Hide the controls until the rate is playing and show loading
@@ -425,6 +426,11 @@ class MiniPlayerView: UIView {
             Update the image
          */
         updateImage()
+    }
+    
+    
+    func UI(_ block: @escaping ()->Void) {
+        DispatchQueue.main.async(execute: block)
     }
     
     
@@ -484,7 +490,10 @@ class MiniPlayerView: UIView {
         let urlString:String = radioModel.linkRadio
         print(urlString)
         let url = URL.init(string: urlString)
-        player = AVPlayer.init(url: url!)
+        if(self.player != nil){
+            self.player.pause()
+        }
+        self.player = AVPlayer.init(url: url!)
     }
     
     

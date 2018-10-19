@@ -292,7 +292,7 @@ class PlayerViewController: UIViewController{
          */
         playing = false
         
-        player.pause()
+        self.miniPlayer.pause()
         
         /*
             Hidde the graphic music
@@ -319,7 +319,7 @@ class PlayerViewController: UIViewController{
          */
         playing = true
         
-        player.play()
+        self.miniPlayer.play()
         
         /*
          Show the graphic music
