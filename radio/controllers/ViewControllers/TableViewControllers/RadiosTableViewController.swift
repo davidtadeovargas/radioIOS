@@ -24,7 +24,7 @@ class RadiosTableViewController: CustomTableViewController,RadiosResponseProtoco
     /*
      Temoral list for search
      */
-    var listSearchRadios:ListRadios = ListRadios()
+    static var listSearchRadios:ListRadios = ListRadios()
     
     /*
         Flag to show only favorites
@@ -47,6 +47,10 @@ class RadiosTableViewController: CustomTableViewController,RadiosResponseProtoco
      */
     private var onCellTouch:OnCellTouch! = nil
     
+    
+    /*
+     */
+    private var genre:GenreModel! = nil
     
     
     
@@ -72,10 +76,29 @@ class RadiosTableViewController: CustomTableViewController,RadiosResponseProtoco
         if(!self.showOnlyFavorites){
             updateWithServer()
         }
-        
-        
     }
 
+    
+    func getCorrectListCount() -> Int{
+        
+        /*
+         Determines the list count
+         */
+        var actualCount:Int = 0
+        if(self.showOnlyFavorites){
+            actualCount = listFavoriteRadios.getListRadios().count
+        }
+        else if(!self.query.isEmpty){
+            actualCount = RadiosTableViewController.listSearchRadios.getListRadios().count
+        }
+        else if(self.genre != nil){
+            actualCount = RadiosTableViewController.listSearchRadios.getListRadios().count
+        }
+        else{
+            actualCount = RadiosTableViewController.listRadios.getListRadios().count
+        }
+        return actualCount
+    }
     
     /*
      Update the table with the server with cache
@@ -94,16 +117,7 @@ class RadiosTableViewController: CustomTableViewController,RadiosResponseProtoco
             /*
                 Determines the list count
              */
-            var actualCount:Int = 0
-            if(self.showOnlyFavorites){
-                actualCount = listFavoriteRadios.listRadios.count
-            }
-            else if(!self.query.isEmpty){
-                actualCount = listSearchRadios.listRadios.count
-            }
-            else{
-                actualCount = RadiosTableViewController.listRadios.listRadios.count
-            }
+            let actualCount:Int = getCorrectListCount()
             
             /*
              Consume the webservice with cache
@@ -111,7 +125,13 @@ class RadiosTableViewController: CustomTableViewController,RadiosResponseProtoco
             let radiosListNetController:RadiosListNetController = RadiosListNetController()
             radiosListNetController.onResponseProtocol = self
             radiosListNetController.onError = self //Error handler for connection
-            radiosListNetController.initURL(offset: actualCount, limit: 10, query: query)
+            if(genre != nil){
+                let id:String = String(genre.id!)
+                radiosListNetController.initURLGenres(offset: actualCount, limit: 10, genre_id: id)
+            }
+            else{
+                radiosListNetController.initURL(offset: actualCount, limit: 10, query: query)
+            }
             print(query)
             try radiosListNetController.task()
             
@@ -142,12 +162,36 @@ class RadiosTableViewController: CustomTableViewController,RadiosResponseProtoco
      */
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         
-        if(RadiosTableViewController.listRadios.listRadios != nil){
+        if(!self.query.isEmpty || genre != nil){ //Search row size
+            
+            let count:Int = RadiosTableViewController.listSearchRadios.getListRadios().count
+            if(count == 0){
+                
+                /*
+                 When there are no rows this event can fire
+                 */
+                if(onInitialEmptyRows != nil){
+                    onInitialEmptyRows?.onInitialEmptyRows()
+                }
+            }
+            else{
+                
+                /*
+                 When there are rows this event fire
+                 */
+                if(onRows != nil){
+                    onRows?.onRows()
+                }
+            }
+            
+            return RadiosTableViewController.listSearchRadios.getListRadios().count
+        }
+        else if(RadiosTableViewController.listRadios.getListRadios() != nil){
             
             /*
              When there are rows this event can fire
              */
-            if(RadiosTableViewController.listRadios.listRadios.count > 0){
+            if(RadiosTableViewController.listRadios.getListRadios().count > 0){
                 if(onInitialRows != nil){
                     onInitialRows?.onInitialRows()
                 }
@@ -158,11 +202,11 @@ class RadiosTableViewController: CustomTableViewController,RadiosResponseProtoco
              tab is on favorites only has to show favorites
              */
             if(self.showOnlyFavorites){
-                listFavoriteRadios.listRadios = [] //Clear the temporal list
+                listFavoriteRadios.setListRadios(listRadios: []) //Clear the temporal list
                 var favoritesCount:Int = 0
-                for radio in RadiosTableViewController.listRadios.listRadios{
+                for radio in RadiosTableViewController.listRadios.getListRadios(){
                     if(radio.hearthIt){
-                        listFavoriteRadios.listRadios.append(radio)
+                        listFavoriteRadios.addItem(radioModel: radio)
                         favoritesCount = favoritesCount + 1
                     }
                 }
@@ -179,32 +223,8 @@ class RadiosTableViewController: CustomTableViewController,RadiosResponseProtoco
                 
                 return favoritesCount
             }
-            else if(!self.query.isEmpty){ //Search row size
-                
-                let count:Int = listSearchRadios.listRadios.count
-                if(count == 0){
-                    
-                    /*
-                     When there are no rows this event can fire
-                     */
-                    if(onInitialEmptyRows != nil){
-                        onInitialEmptyRows?.onInitialEmptyRows()
-                    }
-                }
-                else{
-                    
-                    /*
-                     When there are rows this event fire
-                     */
-                    if(onRows != nil){
-                        onRows?.onRows()
-                    }
-                }
-                
-                return listSearchRadios.listRadios.count
-            }
             else{
-                return RadiosTableViewController.listRadios.listRadios.count
+                return RadiosTableViewController.listRadios.getListRadios().count
             }
         }
         else{
@@ -244,26 +264,26 @@ class RadiosTableViewController: CustomTableViewController,RadiosResponseProtoco
         /*
             If comes from search
          */
-        if(!query.isEmpty){
-            listSearchRadios.listRadios =  data as [RadioModel]
+        if(!query.isEmpty || genre != nil){
+            RadiosTableViewController.listSearchRadios.setListRadios(listRadios: data as [RadioModel])
         }
         else{
             
             /*
              If the list already contains data so add the next items to it
              */
-            if(RadiosTableViewController.listRadios.listRadios != nil){
+            if(RadiosTableViewController.listRadios.getListRadios() != nil){
                 
                 let lista_:[RadioModel] = data as [RadioModel] //Set the array of results
                 for item in lista_ {
-                    RadiosTableViewController.listRadios.listRadios.append(item)
+                    RadiosTableViewController.listRadios.addItem(radioModel: item)
                 }
             }
                 /*
                  The list is empty so equals to the list of result
                  */
             else{
-                RadiosTableViewController.listRadios.listRadios = data as [RadioModel] //Set the array of results
+                RadiosTableViewController.listRadios.setListRadios(listRadios: data as [RadioModel])  //Set the array of results
             }
         }
         
@@ -307,16 +327,16 @@ class RadiosTableViewController: CustomTableViewController,RadiosResponseProtoco
         let row:Int = indexPath.row
         var radioModel:RadioModel? = nil
         if(self.showOnlyFavorites){ //Take the model from favorites radios
-            radioModel = listFavoriteRadios.listRadios[row]
-            radioList_ = listFavoriteRadios.listRadios
+            radioModel = listFavoriteRadios.getListRadios()[row]
+            radioList_ = listFavoriteRadios.getListRadios()
         }
-        else if(!self.query.isEmpty){ //Take the model from the search
-            radioModel = listSearchRadios.listRadios[row]
-            radioList_ = listSearchRadios.listRadios
+        else if(!self.query.isEmpty || genre != nil){ //Take the model from the search
+            radioModel = RadiosTableViewController.listSearchRadios.getListRadios()[row]
+            radioList_ = RadiosTableViewController.listSearchRadios.getListRadios()
         }
         else{ //Take the model from normal radios
-            radioModel = RadiosTableViewController.listRadios.listRadios![row]
-            radioList_ = RadiosTableViewController.listRadios.listRadios
+            radioModel = RadiosTableViewController.listRadios.getListRadios()![row]
+            radioList_ = RadiosTableViewController.listRadios.getListRadios()
         }
         
         /*
@@ -327,6 +347,11 @@ class RadiosTableViewController: CustomTableViewController,RadiosResponseProtoco
         }
     }
     
+    
+    func clearRows(){
+        RadiosTableViewController.listSearchRadios = ListRadios()
+        self.tableView.reloadData()
+    }
     
     /*
         Render the rows of the table
@@ -346,13 +371,16 @@ class RadiosTableViewController: CustomTableViewController,RadiosResponseProtoco
          */
         var radioModel:RadioModel? = nil
         if(self.showOnlyFavorites){ //Take the model from favorites radios
-            radioModel = listFavoriteRadios.listRadios[row]
+            radioModel = listFavoriteRadios.getListRadios()[row]
         }
-        else if(!self.query.isEmpty){ //Take the model from the search
+        else if(!self.query.isEmpty || genre != nil){ //Take the model from the search
+            radioModel = RadiosTableViewController.listSearchRadios.getListRadios()[row]
+        }
+        /*else if(genre != nil){ //Take the model from the search
             radioModel = listSearchRadios.listRadios[row]
-        }
+        }*/
         else{ //Take the model from normal radios
-            radioModel = RadiosTableViewController.listRadios.listRadios![row]
+            radioModel = RadiosTableViewController.listRadios.getListRadios()![row]
         }
         
         /*
@@ -452,9 +480,9 @@ class RadiosTableViewController: CustomTableViewController,RadiosResponseProtoco
         /*
          Get the radio model
          */
-        var radioModel:RadioModel = RadiosTableViewController.listRadios.listRadios[row]
+        var radioModel:RadioModel = RadiosTableViewController.listRadios.getListRadios()[row]
         if(showOnlyFavorites){
-           radioModel = listFavoriteRadios.listRadios[row]
+           radioModel = listFavoriteRadios.getListRadios()[row]
         }
         
         /*
@@ -475,7 +503,7 @@ class RadiosTableViewController: CustomTableViewController,RadiosResponseProtoco
                 Update the radio original list caused by favorites hearth selection
              */
             if(showOnlyFavorites){
-                for model_ in RadiosTableViewController.listRadios.listRadios {
+                for model_ in RadiosTableViewController.listRadios.getListRadios() {
                     if(model_.id == radioModel.id){
                        model_.hearthIt = true
                         break
@@ -496,7 +524,7 @@ class RadiosTableViewController: CustomTableViewController,RadiosResponseProtoco
              Update the radio original list caused by favorites hearth selection
              */
             if(showOnlyFavorites){
-                for model_ in RadiosTableViewController.listRadios.listRadios {
+                for model_ in RadiosTableViewController.listRadios.getListRadios() {
                     if(model_.id == radioModel.id){
                         model_.hearthIt = false
                         break
@@ -521,10 +549,11 @@ class RadiosTableViewController: CustomTableViewController,RadiosResponseProtoco
      */
     override func scrollViewDidScroll(_ scrollView: UIScrollView) {
         
-        /*
-            If comes from search
-         */
-        if(query.isEmpty){
+        let actualCount:Int = getCorrectListCount()
+        if(actualCount < 10){
+            return;
+        }
+        else if(query.isEmpty){
             
             let  height = scrollView.frame.size.height
             let contentYoffset = scrollView.contentOffset.y
@@ -604,9 +633,14 @@ class RadiosTableViewController: CustomTableViewController,RadiosResponseProtoco
     }
     func setShowOnlyFavorites(val:Bool){
         self.showOnlyFavorites = val
+        genre = nil
     }
     func setQuery(query:String){
         self.query = query
+        genre = nil
+    }
+    func setGenre(genre:GenreModel){
+        self.genre = genre
     }
     func setOnCellTouch(onCellTouch:OnCellTouch){
         self.onCellTouch = onCellTouch

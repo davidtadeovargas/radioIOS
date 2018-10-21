@@ -16,6 +16,8 @@ class GenresTableViewController: UITableViewController,GenresResponseProtocol,Ne
     //Contains the total of the rows
     var rowsCount:Int = 0
     
+    private var rowSelection:RowSelection! = nil
+    
     
     
     
@@ -42,6 +44,10 @@ class GenresTableViewController: UITableViewController,GenresResponseProtocol,Ne
         updateWithServer()
     }
 
+    func setRowSelection(rowSelection:RowSelection){
+        self.rowSelection = rowSelection
+    }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -164,6 +170,16 @@ class GenresTableViewController: UITableViewController,GenresResponseProtocol,Ne
             }
         }
     
+        /*
+         Event clic for the rigth theme icon
+         */
+        if(cell_.leftImage.gestureRecognizers?.count == nil){
+            let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(themeTapped(tapGestureRecognizer:)))
+            cell_.leftImage?.isUserInteractionEnabled = true
+            cell_.leftImage?.tag = row
+            cell_.leftImage?.addGestureRecognizer(tapGestureRecognizer)
+        }
+        
         row = row + 1 //Add one to go for the rigth value
         
         /*
@@ -199,12 +215,46 @@ class GenresTableViewController: UITableViewController,GenresResponseProtocol,Ne
                     cell_.rigthImage.image = image
                 }
             }
+            
+            /*
+             Event clic for the rigth theme icon
+             */
+            if(cell_.rigthImage.gestureRecognizers?.count == nil){
+                let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(themeTapped(tapGestureRecognizer:)))
+                cell_.rigthImage?.isUserInteractionEnabled = true
+                cell_.rigthImage?.tag = row
+                cell_.rigthImage?.addGestureRecognizer(tapGestureRecognizer)
+            }
         }
         
         return cell_
     }
    
 
+    
+    /*
+     When the user clics on the theme image
+     */
+    @objc func themeTapped(tapGestureRecognizer: UITapGestureRecognizer){
+        
+        let tappedImage:UIView = tapGestureRecognizer.view as! UIView
+        
+        /*
+         Get the row from the image clicked
+         */
+        let row:Int = tappedImage.tag
+        
+        /*
+         Get the genre model
+         */
+        let genre:GenreModel = listGenres![row]
+        
+        if(self.rowSelection != nil){
+           self.rowSelection.onRowSelection(genre: genre)
+        }
+    }
+    
+    
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         
         /*

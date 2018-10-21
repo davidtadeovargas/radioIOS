@@ -51,9 +51,34 @@ class RadiosListNetController:NetController,NetProtocol{
     
     
     /*
+     Init the url string
+     */
+    func initURLGenres(offset:Int,limit:Int, genre_id:String){
+        
+        /*
+         Create the initial filter url
+         */
+        let newString = URLS.RADIOS_LIST_WITH_PAGING_PARAMS.replacingOccurrences(of: "%offset%", with: String(offset), options: .literal, range: nil)
+        let newString2 = newString.replacingOccurrences(of: "%limit%", with: String(limit), options: .literal, range: nil)
+        let newString3 = newString2.replacingOccurrences(of: "genre_id=", with: "genre_id=" + genre_id, options: .literal, range: nil)
+        let newString4 = newString3.replacingOccurrences(of: "radio_id=", with: "", options: .literal, range: nil)
+        let newString5 = newString4.replacingOccurrences(of: "q=%q%", with: "", options: .literal, range: nil)
+        let newString6 = newString5.replacingOccurrences(of: "&&", with: "", options: .literal, range: nil)
+        
+        print(newString6)
+        
+        /*
+         Set the url
+         */
+        self.url = newString6 //Set the url
+    }
+    
+    /*
      Result from webservice
      */
     internal func result(data: AnyObject) {
+        
+        radiosList = []
         
         /*
          Create the list of genres

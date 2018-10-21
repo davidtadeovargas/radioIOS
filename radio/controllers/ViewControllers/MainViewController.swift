@@ -13,7 +13,7 @@ import GoogleMobileAds
 import HGCircularSlider
 
 
-class MainViewController: UIViewController, GADBannerViewDelegate, ResponseTableConnection,TableProtocol,UISearchBarDelegate,UISearchDisplayDelegate,AdmobProtocol {
+class MainViewController: UIViewController, GADBannerViewDelegate, ResponseTableConnection,TableProtocol,UISearchBarDelegate,UISearchDisplayDelegate,AdmobProtocol,RowSelection {
     
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var recentTextField: UITextField!
@@ -94,6 +94,7 @@ class MainViewController: UIViewController, GADBannerViewDelegate, ResponseTable
     
     
     
+
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -178,6 +179,28 @@ class MainViewController: UIViewController, GADBannerViewDelegate, ResponseTable
         
         
     }
+    
+    
+    func onRowSelection(genre: GenreModel) {
+        
+        /*
+         Load the search table view controller
+         */
+        radiosSearchTableViewController = storyboard!.instantiateViewController(withIdentifier: "RadiosTableViewController") as! RadiosTableViewController
+        RadiosTableViewController.listSearchRadios.setListRadios(listRadios: [])
+        radiosSearchTableViewController?.setGenre(genre: genre)
+        radiosSearchTableViewController?.tableProtocol = self //Methods to table
+        radiosSearchTableViewController?.responseTableConnection = self //Connect the success or error of the web server connection
+        radiosSearchTableViewController?.view.translatesAutoresizingMaskIntoConstraints = true
+        radiosSearchTableViewController?.view.frame = CGRect(x: 0, y: 0, width: self.containerView.frame.size.width, height: self.containerView.frame.size.height)
+        addChildViewController(radiosSearchTableViewController!)
+        containerView.addSubview((radiosSearchTableViewController?.view)!)
+        radiosSearchTableViewController?.didMove(toParentViewController: self)
+        
+        let onCellTouch:OnCellTouch = getInstanceCellTouch()
+        radiosSearchTableViewController?.setOnCellTouch(onCellTouch: onCellTouch)
+    }
+    
     
     
     /*
@@ -328,34 +351,28 @@ class MainViewController: UIViewController, GADBannerViewDelegate, ResponseTable
     func interstitialWillDismissScreen() {
     }
     
-    /*
-        Control the sections
-    */
-    func sectionEvent(){
-        
-        /*
-         Always Hide the central label
-         */
-        self.centralLabel.isHidden = true
+    
+    
+    func getInstanceCellTouch() -> OnCellTouch{
         
         /*
          This class is to control the cell radio touch events to show or hide mini player
          */
         class OnCellTouch_: OnCellTouch {
-        
+            
             private var miniPlayer_:MiniPlayerView! = nil
             private var viewController:UIViewController! = nil
             
             private var currentModelIndex:Int! = nil
             
-            static let sharedInstance = OnCellTouch_()
+            static var sharedInstance = OnCellTouch_()
             
             private var counterAdd:Int = 0
             
             private init() { }
             
             
-
+            
             
             func onCellTouch(radioModel: RadioModel,currentModelIndex:Int,listRadios:[RadioModel]) {
                 
@@ -384,12 +401,12 @@ class MainViewController: UIViewController, GADBannerViewDelegate, ResponseTable
                 miniPlayer_.setURLMusic(radioModel: radioModel)
                 
                 /*
-                    Set the list of songs
+                 Set the list of songs
                  */
                 miniPlayer_.setCurrentModelIndex(currentModelIndex: currentModelIndex)
                 
                 /*
-                    Set the current list radios
+                 Set the current list radios
                  */
                 miniPlayer_.setRadiosList(listRadios: listRadios)
                 
@@ -399,7 +416,7 @@ class MainViewController: UIViewController, GADBannerViewDelegate, ResponseTable
                 miniPlayer_.setViewController(viewController:  self.viewController)
                 
                 /*
-                    Reload image
+                 Reload image
                  */
                 miniPlayer_.updateImage()
                 
@@ -409,19 +426,40 @@ class MainViewController: UIViewController, GADBannerViewDelegate, ResponseTable
                 miniPlayer_.play()
             }
             
+            
+            func newObject() -> OnCellTouch_{
+                OnCellTouch_.sharedInstance = OnCellTouch_()
+                return .sharedInstance
+            }
+            
             func setViewController(viewController:UIViewController){
                 self.viewController = viewController
             }
             func setMiniPlayer(miniPlayer_:MiniPlayerView){
-                    self.miniPlayer_ = miniPlayer_
+                self.miniPlayer_ = miniPlayer_
             }
             func setCurrentModelIndex(currentModelIndex:Int){
                 self.currentModelIndex = currentModelIndex
             }
         }
-        let onCellTouch:OnCellTouch_ = OnCellTouch_.sharedInstance
+        let onCellTouch:OnCellTouch_ = OnCellTouch_.sharedInstance.newObject()
         onCellTouch.setMiniPlayer(miniPlayer_: miniplayer)
         onCellTouch.setViewController(viewController: self)
+        return onCellTouch
+    }
+    
+    /*
+        Control the sections
+    */
+    func sectionEvent(){
+        
+        /*
+         Always Hide the central label
+         */
+        self.centralLabel.isHidden = true
+        
+        
+        let onCellTouch:OnCellTouch = getInstanceCellTouch()
         
         /*
          Search clicked
@@ -496,6 +534,7 @@ class MainViewController: UIViewController, GADBannerViewDelegate, ResponseTable
             addChildViewController(controller)
             controller.responseTableConnection = self //Connect the success or error of the web server connection
             controller.view.translatesAutoresizingMaskIntoConstraints = true
+            controller.setRowSelection(rowSelection: self)
             controller.view.frame = CGRect(x: 0, y: 0, width: self.containerView.frame.size.width, height: self.containerView.frame.size.height)
             containerView.addSubview(controller.view)
             controller.didMove(toParentViewController: self)

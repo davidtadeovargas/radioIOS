@@ -12,7 +12,28 @@ import Foundation
 class ListRadios : ModelRequest{
     
     /*
-        Contains the radio list
+     Contains the radio list
      */
-    var listRadios:[RadioModel]! = []
+    private var listRadios:[RadioModel]! = []
+    
+    
+    
+    
+    override init(){
+        listRadios = []
+    }
+    
+    
+    func setListRadios(listRadios:[RadioModel]!){
+        self.listRadios = listRadios
+    }
+    
+    func getListRadios() -> [RadioModel]!{
+        return self.listRadios
+    }
+    
+    
+    func addItem(radioModel:RadioModel){
+        self.listRadios.append(radioModel)
+    }
 }

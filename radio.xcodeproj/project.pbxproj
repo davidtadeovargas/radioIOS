@@ -13,6 +13,7 @@
 		3F007BEC20F51DC600CAACDF /* ConfigureModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F007BEB20F51DC600CAACDF /* ConfigureModel.swift */; };
 		3F007BEE20F51EE200CAACDF /* GenreModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F007BED20F51EE200CAACDF /* GenreModel.swift */; };
 		3F0ADBA3216C95B700716099 /* PlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F0ADBA2216C95B600716099 /* PlayerViewController.swift */; };
+		3F2B4B71217A619E0017C40F /* RowSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F2B4B70217A619E0017C40F /* RowSelection.swift */; };
 		3F4ECF5C212B5E0E0017B99D /* ListRadios.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4ECF5B212B5E0E0017B99D /* ListRadios.swift */; };
 		3F4ECF5E212BB4EF0017B99D /* ModelRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4ECF5D212BB4EF0017B99D /* ModelRequest.swift */; };
 		3F4ECF61212BBB470017B99D /* TableProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4ECF60212BBB470017B99D /* TableProtocol.swift */; };
@@ -98,6 +99,7 @@
 		3F007BEB20F51DC600CAACDF /* ConfigureModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigureModel.swift; sourceTree = "<group>"; };
 		3F007BED20F51EE200CAACDF /* GenreModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenreModel.swift; sourceTree = "<group>"; };
 		3F0ADBA2216C95B600716099 /* PlayerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerViewController.swift; sourceTree = "<group>"; };
+		3F2B4B70217A619E0017C40F /* RowSelection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RowSelection.swift; sourceTree = "<group>"; };
 		3F4ECF5B212B5E0E0017B99D /* ListRadios.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListRadios.swift; sourceTree = "<group>"; };
 		3F4ECF5D212BB4EF0017B99D /* ModelRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelRequest.swift; sourceTree = "<group>"; };
 		3F4ECF60212BBB470017B99D /* TableProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableProtocol.swift; sourceTree = "<group>"; };
@@ -205,6 +207,7 @@
 			isa = PBXGroup;
 			children = (
 				3F4ECF60212BBB470017B99D /* TableProtocol.swift */,
+				3F2B4B70217A619E0017C40F /* RowSelection.swift */,
 			);
 			path = protocols;
 			sourceTree = "<group>";
@@ -647,6 +650,7 @@
 				3FAF5B7120FA123C00721AF4 /* URLS.swift in Sources */,
 				3FE27FCA20FFFEAE0036FD96 /* GenresListNetController.swift in Sources */,
 				3F8C788C21195AC6001BF39E /* ThemesViewCell.swift in Sources */,
+				3F2B4B71217A619E0017C40F /* RowSelection.swift in Sources */,
 				3F58703B20EC35D5003CDA99 /* UIImageViewExtension.swift in Sources */,
 				3FE27FC320FFF3FE0036FD96 /* NetResponseModel.swift in Sources */,
 				3F007BEE20F51EE200CAACDF /* GenreModel.swift in Sources */,
