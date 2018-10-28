@@ -119,9 +119,11 @@ class NetController{
         
         let data = convertStringToDictionary(text: result)
         let netResponseModel:NetResponseModel = NetResponseModel()
-        netResponseModel.status = data!["status"] as! NSNumber;
-        netResponseModel.msg = data!["msg"] as! String;
-        netResponseModel.datas = data!["datas"] as AnyObject;
+        if(data != nil){
+            netResponseModel.status = data!["status"] as! NSNumber;
+            netResponseModel.msg = data!["msg"] as! String;
+            netResponseModel.datas = data!["datas"] as AnyObject;
+        }
         
         return netResponseModel;
     }
