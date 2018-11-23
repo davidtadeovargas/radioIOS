@@ -11,7 +11,7 @@ import Foundation
 
 class URLS{
     
-    static let HOST = "http://192.168.1.75/RadioAPI/admin_panel/"
+    static let HOST = "http://192.168.1.67/RadioAPI/admin_panel/"
     static let GENRES_HOST = HOST + "uploads/genres/"
     static let RADIOS_HOST = HOST + "uploads/radios/"
     static let GENRES_LIST = HOST + "api/api.php?method=getGenres&api_key=eHJhZGlvcGVyZmVjdGFwcA"
